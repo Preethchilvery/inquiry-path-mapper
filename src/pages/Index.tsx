@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronRight, Plus, Edit, Trash2, Play, RotateCcw, Download, Eye, X } from 'lucide-react';
+import InvestigationProgress from '../components/InvestigationProgress';
 
 const FlowchartApp = () => {
   const defaultFlowchart = {
@@ -763,43 +764,52 @@ ${flowchart.nodes[currentNodeId]?.endpointMessage || 'Complete!'}`;
   if (currentNode.isEndpoint) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4 animate-fade-in">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 text-center animate-scale-in">
-          <div className="mb-6">
-            <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <span className="text-2xl">🎯</span>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 animate-slide-in-down">Investigation Result</h2>
-            <p className="text-gray-700 text-lg leading-relaxed animate-slide-in-up">{currentNode.endpointMessage}</p>
-          </div>
-
-          <div className="flex gap-3 animate-slide-in-up" style={{animationDelay: '0.3s'}}>
-            <button 
-              onClick={() => { 
-                setIsTransitioning(true);
-                setTimeout(() => {
-                  setCurrentNodeId(flowchart.startNodeId); 
-                  setUserPath([]); 
-                  setIsTransitioning(false);
-                }, 300);
-              }} 
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transform hover:scale-105 transition-all duration-200 shadow-lg"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />Start Over
-            </button>
-            <button 
-              onClick={() => setShowPathView(true)} 
-              className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-purple-700 flex items-center justify-center transform hover:scale-105 transition-all duration-200 shadow-lg"
-            >
-              <Eye className="w-4 h-4 mr-2" />View Path
-            </button>
-          </div>
+        <div className="flex gap-6 max-w-6xl w-full">
+          <InvestigationProgress 
+            userPath={userPath} 
+            currentStep={userPath.length + 1} 
+          />
           
-          <button 
-            onClick={resetFlow} 
-            className="w-full mt-3 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition-all duration-200"
-          >
-            Back to Admin
-          </button>
+          <div className="flex-1 flex items-center justify-center">
+            <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 text-center animate-scale-in">
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-4 animate-slide-in-down">Investigation Result</h2>
+                <p className="text-gray-700 text-lg leading-relaxed animate-slide-in-up">{currentNode.endpointMessage}</p>
+              </div>
+
+              <div className="flex gap-3 animate-slide-in-up" style={{animationDelay: '0.3s'}}>
+                <button 
+                  onClick={() => { 
+                    setIsTransitioning(true);
+                    setTimeout(() => {
+                      setCurrentNodeId(flowchart.startNodeId); 
+                      setUserPath([]); 
+                      setIsTransitioning(false);
+                    }, 300);
+                  }} 
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transform hover:scale-105 transition-all duration-200 shadow-lg"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />Start Over
+                </button>
+                <button 
+                  onClick={() => setShowPathView(true)} 
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-3 rounded-lg hover:from-purple-600 hover:to-purple-700 flex items-center justify-center transform hover:scale-105 transition-all duration-200 shadow-lg"
+                >
+                  <Eye className="w-4 h-4 mr-2" />View Path
+                </button>
+              </div>
+              
+              <button 
+                onClick={resetFlow} 
+                className="w-full mt-3 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transform hover:scale-105 transition-all duration-200"
+              >
+                Back to Admin
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -809,95 +819,104 @@ ${flowchart.nodes[currentNodeId]?.endpointMessage || 'Complete!'}`;
 
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4 transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100 animate-fade-in'}`}>
-      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 animate-scale-in">
-        <div className="mb-6 animate-slide-in-down">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>Step {userPath.length + 1}</span>
-            <span>{currentNode.id}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-1000 ease-out" 
-              style={{ width: `${((userPath.length + 1) / Object.keys(flowchart.nodes).length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="text-center mb-8 animate-slide-in-up">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentNode.question}</h2>
-          {currentNode.selectionMode === 'multiple' && (
-            <div className="mb-4">
-              <div className="bg-gradient-to-r from-purple-100 to-purple-200 border border-purple-300 rounded-lg p-3 mb-4 animate-pulse">
-                <p className="text-purple-800 text-sm font-medium">📋 Multiple Selection: Choose all that apply</p>
+      <div className="flex gap-6 max-w-6xl w-full">
+        <InvestigationProgress 
+          userPath={userPath} 
+          currentStep={userPath.length + 1} 
+        />
+        
+        <div className="flex-1 flex items-center justify-center">
+          <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 animate-scale-in">
+            <div className="mb-6 animate-slide-in-down">
+              <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {userPath.length + 1}</span>
+                <span>{currentNode.id}</span>
               </div>
-              {selectedOptions.length > 0 && (
-                <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 animate-slide-in-left">
-                  <p className="text-blue-800 text-sm font-medium mb-2">Selected ({selectedOptions.length}):</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedOptions.map(optionKey => (
-                      <span key={optionKey} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded text-xs animate-bounce">
-                        {currentNode.options[optionKey].text}
-                      </span>
-                    ))}
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-1000 ease-out" 
+                  style={{ width: `${((userPath.length + 1) / Object.keys(flowchart.nodes).length) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+
+            <div className="text-center mb-8 animate-slide-in-up">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentNode.question}</h2>
+              {currentNode.selectionMode === 'multiple' && (
+                <div className="mb-4">
+                  <div className="bg-gradient-to-r from-purple-100 to-purple-200 border border-purple-300 rounded-lg p-3 mb-4 animate-pulse">
+                    <p className="text-purple-800 text-sm font-medium">📋 Multiple Selection: Choose all that apply</p>
                   </div>
+                  {selectedOptions.length > 0 && (
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 animate-slide-in-left">
+                      <p className="text-blue-800 text-sm font-medium mb-2">Selected ({selectedOptions.length}):</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedOptions.map(optionKey => (
+                          <span key={optionKey} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded text-xs animate-bounce">
+                            {currentNode.options[optionKey].text}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        <div className="space-y-4">
-          {optionEntries.map(([optionKey, option], index) => {
-            const isSelected = selectedOptions.includes(optionKey);
-            const isMultiple = currentNode.selectionMode === 'multiple';
-            
-            return (
-              <button
-                key={optionKey}
-                onClick={() => handleChoice(optionKey)}
-                className={`w-full p-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group animate-slide-in-right shadow-lg ${
-                  isMultiple
-                    ? isSelected
-                      ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white border-2 border-purple-800 shadow-purple-300'
-                      : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700'
-                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-blue-300'
-                }`}
-                style={{animationDelay: `${index * 100}ms`}}
-              >
-                <div className="flex items-center">
-                  {isMultiple && (
-                    <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all duration-200 ${
-                      isSelected ? 'bg-white border-white scale-110' : 'border-white hover:scale-110'
-                    }`}>
-                      {isSelected && <span className="text-purple-600 text-sm animate-bounce">✓</span>}
+            <div className="space-y-4">
+              {optionEntries.map(([optionKey, option], index) => {
+                const isSelected = selectedOptions.includes(optionKey);
+                const isMultiple = currentNode.selectionMode === 'multiple';
+                
+                return (
+                  <button
+                    key={optionKey}
+                    onClick={() => handleChoice(optionKey)}
+                    className={`w-full p-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-between group animate-slide-in-right shadow-lg ${
+                      isMultiple
+                        ? isSelected
+                          ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white border-2 border-purple-800 shadow-purple-300'
+                          : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700'
+                        : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-blue-300'
+                    }`}
+                    style={{animationDelay: `${index * 100}ms`}}
+                  >
+                    <div className="flex items-center">
+                      {isMultiple && (
+                        <div className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center transition-all duration-200 ${
+                          isSelected ? 'bg-white border-white scale-110' : 'border-white hover:scale-110'
+                        }`}>
+                          {isSelected && <span className="text-purple-600 text-sm animate-bounce">✓</span>}
+                        </div>
+                      )}
+                      <span className="font-medium">{option.text}</span>
                     </div>
-                  )}
-                  <span className="font-medium">{option.text}</span>
-                </div>
-                {!isMultiple && <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
-              </button>
-            );
-          })}
-        </div>
+                    {!isMultiple && <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                  </button>
+                );
+              })}
+            </div>
 
-        {currentNode.selectionMode === 'multiple' && (
-          <div className="mt-6 animate-slide-in-up" style={{animationDelay: '0.4s'}}>
-            <button
-              onClick={confirmMultipleSelection}
-              disabled={selectedOptions.length === 0}
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-bold shadow-lg"
+            {currentNode.selectionMode === 'multiple' && (
+              <div className="mt-6 animate-slide-in-up" style={{animationDelay: '0.4s'}}>
+                <button
+                  onClick={confirmMultipleSelection}
+                  disabled={selectedOptions.length === 0}
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none font-bold shadow-lg"
+                >
+                  Continue with Selected Options ({selectedOptions.length})
+                </button>
+              </div>
+            )}
+
+            <button 
+              onClick={resetFlow} 
+              className="w-full mt-4 text-gray-500 hover:text-gray-700 transition-colors text-sm hover:scale-105 transform duration-200"
             >
-              Continue with Selected Options ({selectedOptions.length})
+              Back to Admin Panel
             </button>
           </div>
-        )}
-
-        <button 
-          onClick={resetFlow} 
-          className="w-full mt-4 text-gray-500 hover:text-gray-700 transition-colors text-sm hover:scale-105 transform duration-200"
-        >
-          Back to Admin Panel
-        </button>
+        </div>
       </div>
     </div>
   );
