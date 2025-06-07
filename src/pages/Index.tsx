@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, Plus, Edit, Trash2, Play, RotateCcw, Download, Eye, X } from 'lucide-react';
+import { supabase } from '../../supabase/supabaseClient';
+import { useAuth } from '../contexts/AuthContext';
 
 const FlowchartApp = () => {
   const defaultFlowchart = {
@@ -119,6 +121,7 @@ const FlowchartApp = () => {
     }
   };
 
+  const { user } = useAuth();
   const [mode, setMode] = useState('admin');
   const [flowchart, setFlowchart] = useState(defaultFlowchart);
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
@@ -137,6 +140,38 @@ const FlowchartApp = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [endpointMessages, setEndpointMessages] = useState<string[]>([]);
+
+  // Load flowchart for user
+  useEffect(() => {
+    const loadFlowchart = async () => {
+      if (!user) return;
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('user_flowcharts')
+        .select('flowchart_data')
+        .eq('user_id', user.id)
+        .single();
+      if (data && data.flowchart_data) {
+        setFlowchart(data.flowchart_data);
+      }
+      setLoading(false);
+    };
+    loadFlowchart();
+  }, [user]);
+
+  // Save flowchart for user
+  const saveFlowchart = async (newFlowchart: any) => {
+    if (!user) return;
+    await supabase
+      .from('user_flowcharts')
+      .upsert({
+        user_id: user.id,
+        flowchart_data: newFlowchart,
+      });
+    setFlowchart(newFlowchart);
+  };
 
   const generateNodeId = () => {
     let counter = 1;
@@ -382,7 +417,8 @@ const FlowchartApp = () => {
       isEndpoint: nodeData.isEndpoint,
       endpointMessage: nodeData.endpointMessage || null
     };
-    setFlowchart({ ...flowchart, nodes: { ...flowchart.nodes, [newId]: newNode } });
+    const updatedFlowchart = { ...flowchart, nodes: { ...flowchart.nodes, [newId]: newNode } };
+    saveFlowchart(updatedFlowchart);
     setShowAddNode(false);
   };
 
@@ -395,7 +431,8 @@ const FlowchartApp = () => {
       isEndpoint: nodeData.isEndpoint,
       endpointMessage: nodeData.endpointMessage || null
     };
-    setFlowchart({ ...flowchart, nodes: { ...flowchart.nodes, [nodeId]: updatedNode } });
+    const updatedFlowchart = { ...flowchart, nodes: { ...flowchart.nodes, [nodeId]: updatedNode } };
+    saveFlowchart(updatedFlowchart);
     setEditingNode(null);
   };
 
@@ -406,7 +443,8 @@ const FlowchartApp = () => {
     }
     const newNodes = { ...flowchart.nodes };
     delete newNodes[nodeId];
-    setFlowchart({ ...flowchart, nodes: newNodes });
+    const updatedFlowchart = { ...flowchart, nodes: newNodes };
+    saveFlowchart(updatedFlowchart);
   };
 
   const startUserFlow = () => {
@@ -470,8 +508,17 @@ const FlowchartApp = () => {
       .map(key => currentNode.options[key].nextNodeId)
       .filter(id => id !== null);
 
+    // Collect endpoint messages for all next nodes
     if (nextNodeIds.length > 0) {
-      setCurrentNodeId(nextNodeIds[0]);
+      const messages: string[] = [];
+      nextNodeIds.forEach(id => {
+        const node = flowchart.nodes[id];
+        if (node && node.isEndpoint && node.endpointMessage) {
+          messages.push(node.endpointMessage);
+        }
+      });
+      setEndpointMessages(messages);
+      setCurrentNodeId(nextNodeIds[0]); // Still advance to the first, but store all messages
     }
   };
 
@@ -516,6 +563,10 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
       alert('Export not supported.');
     }
   };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-xl">Loading your flowchart...</div>;
+  }
 
   if (showPathView) {
     return (
@@ -608,8 +659,15 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                   <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 rounded-lg text-center w-56 shadow-lg">
                     <div className="text-xs font-bold mb-1">🎯 RESULT</div>
                     <div className="text-xs leading-tight">
-                      {(flowchart.nodes[currentNodeId!]?.endpointMessage || '').substring(0, 100)}
-                      {(flowchart.nodes[currentNodeId!]?.endpointMessage || '').length > 100 ? '...' : ''}
+                      {endpointMessages.length > 1 ? (
+                        <ul className="text-gray-700 text-lg leading-relaxed animate-slide-in-up list-disc list-inside">
+                          {endpointMessages.map((msg, idx) => (
+                            <li key={idx}>{msg}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'
+                      )}
                     </div>
                   </div>
                 </div>
@@ -646,7 +704,15 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
               <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 p-3 rounded animate-slide-in-up">
                 <div className="text-sm font-bold text-green-800 mb-2">🎯 Investigation Outcome:</div>
                 <div className="text-sm text-green-700 leading-relaxed">
-                  {flowchart.nodes[currentNodeId!]?.endpointMessage || 'Trade investigation process complete!'}
+                  {endpointMessages.length > 1 ? (
+                    <ul className="text-gray-700 text-lg leading-relaxed animate-slide-in-up list-disc list-inside">
+                      {endpointMessages.map((msg, idx) => (
+                        <li key={idx}>{msg}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    flowchart.nodes[currentNodeId!]?.endpointMessage || 'Trade investigation process complete!'
+                  )}
                 </div>
               </div>
 
@@ -791,7 +857,15 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
               <span className="text-2xl">🎯</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4 animate-slide-in-down">Investigation Result</h2>
-            <p className="text-gray-700 text-lg leading-relaxed animate-slide-in-up">{currentNode.endpointMessage}</p>
+            {endpointMessages.length > 1 ? (
+              <ul className="text-gray-700 text-lg leading-relaxed animate-slide-in-up list-disc list-inside">
+                {endpointMessages.map((msg, idx) => (
+                  <li key={idx}>{msg}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-700 text-lg leading-relaxed animate-slide-in-up">{currentNode.endpointMessage}</p>
+            )}
           </div>
 
           <div className="flex gap-3 animate-slide-in-up" style={{animationDelay: '0.3s'}}>
@@ -802,6 +876,7 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                   setCurrentNodeId(flowchart.startNodeId); 
                   setUserPath([]); 
                   setIsTransitioning(false);
+                  setEndpointMessages([]);
                 }, 300);
               }} 
               className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 flex items-center justify-center transform hover:scale-105 transition-all duration-200 shadow-lg"

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -6,12 +5,14 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export function Admin() {
   const [setting, setSetting] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // Load user-specific setting from Supabase
   const loadSetting = async () => {
@@ -89,6 +90,9 @@ export function Admin() {
             <span className="text-sm text-gray-600">Welcome, {user.email}</span>
             <Button onClick={handleSignOut} variant="outline" size="sm">
               Sign Out
+            </Button>
+            <Button onClick={() => navigate('/')} variant="default" size="sm">
+              Go to App
             </Button>
           </div>
         </div>

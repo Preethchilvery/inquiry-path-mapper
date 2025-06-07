@@ -1,10 +1,10 @@
-
 'use client'
 import React, { useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Mail, Lock, Eye, EyeClosed, ArrowRight } from 'lucide-react';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../supabase/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { cn } from "@/lib/utils"
 
@@ -32,6 +32,7 @@ export function LoginCard() {
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   // For 3D card effect
   const mouseX = useMotionValue(0);
@@ -71,7 +72,7 @@ export function LoginCard() {
           title: "Success",
           description: "Logged in successfully!",
         });
-        // Redirect will be handled by the auth state change
+        navigate('/admin');
       }
     } catch (error) {
       toast({
