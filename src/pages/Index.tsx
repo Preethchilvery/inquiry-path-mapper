@@ -725,9 +725,12 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                       <>
                         <p className="text-gray-700 font-medium mb-2">{node.question}</p>
                         <div className="text-sm text-gray-600">
-                          {Object.entries(node.options).map(([key, option]) => (
-                            <div key={key} className="hover:text-gray-800 transition-colors">• {option.text} → {option.nextNodeId || 'None'}</div>
-                          ))}
+                          {Object.entries(node.options).map(([key, option]) => {
+                            const typedOption = option as { text: string; nextNodeId: string | null };
+                            return (
+                              <div key={key} className="hover:text-gray-800 transition-colors">• {typedOption.text} → {typedOption.nextNodeId || 'None'}</div>
+                            );
+                          })}
                         </div>
                       </>
                     )}
@@ -829,19 +832,6 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
   return (
     <div className={`min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4 transition-all duration-300 ${isTransitioning ? 'opacity-0' : 'opacity-100 animate-fade-in'}`}>
       <div className="max-w-md w-full bg-white rounded-xl shadow-2xl p-8 animate-scale-in">
-        <div className="mb-6 animate-slide-in-down">
-          <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>Step {userPath.length + 1}</span>
-            <span>{currentNode.id}</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-1000 ease-out" 
-              style={{ width: `${((userPath.length + 1) / Object.keys(flowchart.nodes).length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-
         <div className="text-center mb-8 animate-slide-in-up">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">{currentNode.question}</h2>
           {currentNode.selectionMode === 'multiple' && (
@@ -867,6 +857,7 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
 
         <div className="space-y-4">
           {optionEntries.map(([optionKey, option], index) => {
+            const typedOption = option as { text: string; nextNodeId: string | null };
             const isSelected = selectedOptions.includes(optionKey);
             const isMultiple = currentNode.selectionMode === 'multiple';
             
@@ -891,7 +882,7 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                       {isSelected && <span className="text-purple-600 text-sm animate-bounce">✓</span>}
                     </div>
                   )}
-                  <span className="font-medium">{option.text}</span>
+                  <span className="font-medium">{typedOption.text}</span>
                 </div>
                 {!isMultiple && <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
               </button>
