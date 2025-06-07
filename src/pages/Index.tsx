@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronRight, Plus, Edit, Trash2, Play, RotateCcw, Download, Eye, X } from 'lucide-react';
 
@@ -566,7 +565,8 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                         
                         <div className="flex flex-col gap-2 w-48">
                           {currentNode && Object.entries(currentNode.options).map(([optionKey, option], index) => {
-                            const isSelected = step.selectedOptions ? step.selectedOptions.includes(optionKey) : (step.selectedText === option.text);
+                            const typedOption = option as { text: string; nextNodeId: string | null };
+                            const isSelected = step.selectedOptions ? step.selectedOptions.includes(optionKey) : (step.selectedText === typedOption.text);
                             return (
                               <div key={optionKey} className={`p-2 rounded border-2 text-xs transition-all duration-300 ${
                                 isSelected
@@ -575,7 +575,7 @@ ${flowchart.nodes[currentNodeId!]?.endpointMessage || 'Complete!'}`;
                               }`}>
                                 <div className="flex items-center gap-1">
                                   {isSelected && <span className="text-green-500">✓</span>}
-                                  <span>{String.fromCharCode(65 + index)}) {option.text}</span>
+                                  <span>{String.fromCharCode(65 + index)}) {typedOption.text}</span>
                                 </div>
                               </div>
                             );
