@@ -36,6 +36,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_flowcharts: {
+        Row: {
+          created_at: string | null
+          flowchart_data: Json | null
+          id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          flowchart_data?: Json | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          flowchart_data?: Json | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
