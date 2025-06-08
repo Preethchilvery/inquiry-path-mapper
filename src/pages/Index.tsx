@@ -1,8 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import FlowchartEditor from "./FlowchartEditor";
+import FlowchartApp from "./FlowchartApp";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -19,10 +18,10 @@ const Index = () => {
     );
   }
 
-  // If user is logged in, show the flowchart editor
+  // If user is logged in, show the flowchart app
   if (user) {
-    console.log('User is logged in, showing FlowchartEditor');
-    return <FlowchartEditor />;
+    console.log('User is logged in, showing FlowchartApp');
+    return <FlowchartApp />;
   }
 
   // If user is not logged in, show the welcome page
