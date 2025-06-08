@@ -46,26 +46,78 @@ const initialEdges: Edge[] = [
 const defaultFlowchart = {
   nodes: [
     {
-      id: '1',
-      type: 'input',
-      data: { label: 'Start' },
+      id: 'node_1',
+      data: { label: 'Do you have an EMSN (Electronic Message Sequence Number)?' },
       position: { x: 250, y: 25 },
     },
     {
-      id: '2',
-      data: { label: 'Process' },
+      id: 'node_2',
+      data: { label: 'Do you have Business Events?' },
       position: { x: 100, y: 125 },
     },
     {
-      id: '3',
-      type: 'output',
-      data: { label: 'End' },
-      position: { x: 250, y: 250 },
+      id: 'node_3',
+      data: { label: 'ASK FOR TRADE DETAILS - What do you need to do? (Select all that apply)' },
+      position: { x: 400, y: 125 },
+    },
+    {
+      id: 'node_4',
+      data: { label: 'Identify the error message in the business events. Go to Trade Investigation Part 2: Scenario Analysis' },
+      position: { x: 100, y: 250 },
+    },
+    {
+      id: 'node_5',
+      data: { label: 'What type of checks do you need to perform? (Select all that apply)' },
+      position: { x: 400, y: 250 },
+    },
+    {
+      id: 'node_6',
+      data: { label: 'Find the EMSN and proceed with trade investigation. Use the EMSN to track the specific transaction through the system.' },
+      position: { x: 250, y: 375 },
+    },
+    {
+      id: 'node_7',
+      data: { label: 'Escalate to TCAS (Trade Capture and Settlement) team. Provide all available trade details and context for further investigation.' },
+      position: { x: 100, y: 375 },
+    },
+    {
+      id: 'node_8',
+      data: { label: 'Check Limits (BCT/RiskPortfolio) completed. Review limit settings and verify if any limits have been breached. Contact Risk Management team if limits are exceeded.' },
+      position: { x: 400, y: 375 },
+    },
+    {
+      id: 'node_9',
+      data: { label: 'Check ADS (Rule to No Pricing/Currency Blacklisted) completed. Review ADS rules configuration and verify if pricing or currency restrictions apply. Contact Compliance team if blacklisted items are found.' },
+      position: { x: 600, y: 250 },
+    },
+    {
+      id: 'node_10',
+      data: { label: 'Check MTF Enablement completed. Verify MTF (Multilateral Trading Facility) configuration settings. Contact Technology team if MTF enablement issues are detected.' },
+      position: { x: 600, y: 375 },
+    },
+    {
+      id: 'node_11',
+      data: { label: 'Flow configurations review completed. Even with EMSN informed, if provider is not part of the business events or trade, these configurations have been reviewed (Limits, ADS Blacklist and MTF).' },
+      position: { x: 800, y: 250 },
+    },
+    {
+      id: 'node_12',
+      data: { label: 'Additional trade information requested. Gather Trade ID, Counterparty details, Settlement Date, Currency information, and any relevant documentation before proceeding.' },
+      position: { x: 800, y: 375 },
     },
   ],
   edges: [
-    { id: 'e1-2', source: '1', target: '2' },
-    { id: 'e2-3', source: '2', target: '3' },
+    { id: 'e1-2', source: 'node_1', target: 'node_2' },
+    { id: 'e1-3', source: 'node_1', target: 'node_3' },
+    { id: 'e2-4', source: 'node_2', target: 'node_4' },
+    { id: 'e2-5', source: 'node_2', target: 'node_5' },
+    { id: 'e3-6', source: 'node_3', target: 'node_6' },
+    { id: 'e3-7', source: 'node_3', target: 'node_7' },
+    { id: 'e3-12', source: 'node_3', target: 'node_12' },
+    { id: 'e5-8', source: 'node_5', target: 'node_8' },
+    { id: 'e5-9', source: 'node_5', target: 'node_9' },
+    { id: 'e5-10', source: 'node_5', target: 'node_10' },
+    { id: 'e5-11', source: 'node_5', target: 'node_11' },
   ],
 };
 
