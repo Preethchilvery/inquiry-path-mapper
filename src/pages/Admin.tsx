@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,22 +19,41 @@ export function Admin() {
   const loadSetting = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('admin_config')
-      .select('value')
-      .eq('setting_key', 'homepage_title')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    console.log('Loading setting for user:', user.id);
 
-    if (error) {
-      console.error('Load error:', error.message);
+    try {
+      const { data, error } = await supabase
+        .from('admin_config')
+        .select('value')
+        .eq('setting_key', 'homepage_title')
+        .eq('user_id', user.id)
+        .limit(1)
+        .single();
+
+      if (error) {
+        // If no rows found, that's fine - just means no setting saved yet
+        if (error.code === 'PGRST116') {
+          console.log('No setting found yet, using empty string');
+          setSetting('');
+        } else {
+          console.error('Load error:', error.message);
+          toast({
+            title: "Error",
+            description: "Failed to load settings: " + error.message,
+            variant: "destructive",
+          });
+        }
+      } else if (data) {
+        console.log('Loaded setting:', data.value);
+        setSetting(data.value || '');
+      }
+    } catch (error) {
+      console.error('Unexpected error loading setting:', error);
       toast({
         title: "Error",
         description: "Failed to load settings",
         variant: "destructive",
       });
-    } else if (data) {
-      setSetting(data.value);
     }
   };
 
@@ -43,24 +63,35 @@ export function Admin() {
     
     setIsLoading(true);
     
-    const { error } = await supabase
-      .from('admin_config')
-      .upsert({
-        setting_key: 'homepage_title',
-        value: setting,
-        user_id: user.id,
-      });
+    try {
+      const { error } = await supabase
+        .from('admin_config')
+        .upsert({
+          setting_key: 'homepage_title',
+          value: setting,
+          user_id: user.id,
+        });
 
-    if (error) {
+      if (error) {
+        console.error('Save error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to save: " + error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log('Setting saved successfully');
+        toast({
+          title: "Success",
+          description: "Settings saved successfully!",
+        });
+      }
+    } catch (error) {
+      console.error('Unexpected error saving setting:', error);
       toast({
         title: "Error",
-        description: "Failed to save: " + error.message,
+        description: "Failed to save settings",
         variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Settings saved successfully!",
       });
     }
     
