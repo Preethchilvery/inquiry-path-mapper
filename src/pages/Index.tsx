@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { FlowchartEditor } from "./FlowchartEditor";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -17,6 +18,12 @@ const Index = () => {
     );
   }
 
+  // If user is logged in, show the flowchart editor
+  if (user) {
+    return <FlowchartEditor />;
+  }
+
+  // If user is not logged in, show the welcome page
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md mx-auto text-center space-y-6">
@@ -24,27 +31,17 @@ const Index = () => {
           Welcome to Admin App
         </h1>
         <p className="text-lg text-gray-600 mb-8">
-          {user ? `Hello, ${user.email}!` : 'Please sign in to access the admin panel.'}
+          Please sign in to access the flowchart editor and admin panel.
         </p>
         
         <div className="space-y-4">
-          {user ? (
-            <Button 
-              onClick={() => navigate('/admin')}
-              className="w-full"
-              size="lg"
-            >
-              Go to Admin Panel
-            </Button>
-          ) : (
-            <Button 
-              onClick={() => navigate('/login')}
-              className="w-full"
-              size="lg"
-            >
-              Sign In
-            </Button>
-          )}
+          <Button 
+            onClick={() => navigate('/login')}
+            className="w-full"
+            size="lg"
+          >
+            Sign In
+          </Button>
         </div>
       </div>
     </div>
