@@ -222,7 +222,8 @@ const defaultFlowchart = {
       isEndpoint: true,
       endpointMessage: "Complex scenario analysis required. Go to Trade Investigation Part 2: Scenario Analysis. Document all findings and escalate to senior trading desk if needed."
     }
-  }
+  },
+  edges: []
 };
 
 export function FlowchartEditor() {
@@ -257,8 +258,30 @@ export function FlowchartEditor() {
 
       if (data?.flowchart_data) {
         const flowchartData = data.flowchart_data as any;
-        if (flowchartData.nodes) setNodes(flowchartData.nodes);
-        if (flowchartData.edges) setEdges(flowchartData.edges);
+
+        // Handle nodes as array or object
+        let loadedNodes = flowchartData.nodes;
+        if (loadedNodes) {
+          if (Array.isArray(loadedNodes)) {
+            setNodes(loadedNodes);
+          } else if (typeof loadedNodes === 'object') {
+            setNodes(Object.values(loadedNodes));
+          } else {
+            setNodes([]);
+          }
+        }
+
+        // Handle edges as array or object (if you ever store edges as object)
+        let loadedEdges = flowchartData.edges;
+        if (loadedEdges) {
+          if (Array.isArray(loadedEdges)) {
+            setEdges(loadedEdges);
+          } else if (typeof loadedEdges === 'object') {
+            setEdges(Object.values(loadedEdges));
+          } else {
+            setEdges([]);
+          }
+        }
       } else {
         // No flowchart found, seed with default
         setNodes(defaultFlowchart.nodes);
