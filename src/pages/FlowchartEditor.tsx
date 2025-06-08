@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ReactFlow,
@@ -44,6 +43,32 @@ const initialEdges: Edge[] = [
   { id: 'e2-3', source: '2', target: '3' },
 ];
 
+const defaultFlowchart = {
+  nodes: [
+    {
+      id: '1',
+      type: 'input',
+      data: { label: 'Start' },
+      position: { x: 250, y: 25 },
+    },
+    {
+      id: '2',
+      data: { label: 'Process' },
+      position: { x: 100, y: 125 },
+    },
+    {
+      id: '3',
+      type: 'output',
+      data: { label: 'End' },
+      position: { x: 250, y: 250 },
+    },
+  ],
+  edges: [
+    { id: 'e1-2', source: '1', target: '2' },
+    { id: 'e2-3', source: '2', target: '3' },
+  ],
+};
+
 export function FlowchartEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -78,6 +103,14 @@ export function FlowchartEditor() {
         const flowchartData = data.flowchart_data as any;
         if (flowchartData.nodes) setNodes(flowchartData.nodes);
         if (flowchartData.edges) setEdges(flowchartData.edges);
+      } else {
+        // No flowchart found, seed with default
+        setNodes(defaultFlowchart.nodes);
+        setEdges(defaultFlowchart.edges);
+        await supabase.from('user_flowcharts').upsert({
+          user_id: user.id,
+          flowchart_data: defaultFlowchart,
+        });
       }
     } catch (error) {
       console.error('Error loading flowchart:', error);
