@@ -1,7 +1,8 @@
+
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import FlowchartApp from "./FlowchartApp";
+import FlowchartEditor from "./FlowchartEditor";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Index = () => {
   console.log('Index page - loading:', loading, 'user:', user?.email);
 
   if (loading) {
+    console.log('Index page showing loading spinner');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -17,12 +19,14 @@ const Index = () => {
     );
   }
 
-  // If user is logged in, show the flowchart app
+  // If user is logged in, show the flowchart editor
   if (user) {
-    return <FlowchartApp />;
+    console.log('User is logged in, showing FlowchartEditor');
+    return <FlowchartEditor />;
   }
 
   // If user is not logged in, show the welcome page
+  console.log('User not logged in, showing welcome page');
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex flex-col items-center justify-center p-4">
       <div className="max-w-md mx-auto text-center space-y-6">
