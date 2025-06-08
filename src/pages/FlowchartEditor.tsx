@@ -18,112 +18,216 @@ import { Button } from '../components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'input',
-    data: { label: 'Start' },
-    position: { x: 250, y: 25 },
-  },
-  {
-    id: '2',
-    data: { label: 'Process' },
-    position: { x: 100, y: 125 },
-  },
-  {
-    id: '3',
-    type: 'output',
-    data: { label: 'End' },
-    position: { x: 250, y: 250 },
-  },
-];
-
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2' },
-  { id: 'e2-3', source: '2', target: '3' },
-];
-
 const defaultFlowchart = {
-  nodes: [
-    {
-      id: 'node_1',
-      data: { label: 'Do you have an EMSN (Electronic Message Sequence Number)?' },
-      position: { x: 250, y: 25 },
+  startNodeId: "node_1",
+  nodes: {
+    "node_1": {
+      id: "node_1",
+      question: "Do you have Business Events to process?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Yes", nextNodeId: "node_2" },
+        option2: { text: "No", nextNodeId: "node_3" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_2',
-      data: { label: 'Do you have Business Events?' },
-      position: { x: 100, y: 125 },
+    "node_2": {
+      id: "node_2",
+      question: "What checks do you need to perform? (Select all that apply)",
+      selectionMode: "multiple",
+      options: {
+        option1: { text: "Check BCT/RiskPortfolio Limits", nextNodeId: "node_8" },
+        option2: { text: "Check ADS Rules", nextNodeId: "node_9" },
+        option3: { text: "Verify Settlement Instructions", nextNodeId: "node_10" },
+        option4: { text: "Review Counterparty Limits", nextNodeId: "node_11" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_3',
-      data: { label: 'ASK FOR TRADE DETAILS - What do you need to do? (Select all that apply)' },
-      position: { x: 400, y: 125 },
+    "node_3": {
+      id: "node_3",
+      question: "Do you have an EMSN (Electronic Message Sequence Number)?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Yes", nextNodeId: "node_6" },
+        option2: { text: "No", nextNodeId: "node_7" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_4',
-      data: { label: 'Identify the error message in the business events. Go to Trade Investigation Part 2: Scenario Analysis' },
-      position: { x: 100, y: 250 },
+    "node_4": {
+      id: "node_4",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Multiple investigation paths completed. Review all selected areas for comprehensive trade analysis."
     },
-    {
-      id: 'node_5',
-      data: { label: 'What type of checks do you need to perform? (Select all that apply)' },
-      position: { x: 400, y: 250 },
+    "node_5": {
+      id: "node_5",
+      question: "Which system check do you need to perform?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Check BCT/RiskPortfolio Limits", nextNodeId: "node_8" },
+        option2: { text: "Check ADS Rules", nextNodeId: "node_9" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_6',
-      data: { label: 'Find the EMSN and proceed with trade investigation. Use the EMSN to track the specific transaction through the system.' },
-      position: { x: 250, y: 375 },
+    "node_6": {
+      id: "node_6",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Find the EMSN and proceed with trade investigation. Use the EMSN to track the specific transaction through the system."
     },
-    {
-      id: 'node_7',
-      data: { label: 'Escalate to TCAS (Trade Capture and Settlement) team. Provide all available trade details and context for further investigation.' },
-      position: { x: 100, y: 375 },
+    "node_7": {
+      id: "node_7",
+      question: "What type of trade details do you need?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Ask for Trade Details", nextNodeId: "node_10" },
+        option2: { text: "Escalate to TCAS", nextNodeId: "node_11" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_8',
-      data: { label: 'Check Limits (BCT/RiskPortfolio) completed. Review limit settings and verify if any limits have been breached. Contact Risk Management team if limits are exceeded.' },
-      position: { x: 400, y: 375 },
+    "node_8": {
+      id: "node_8",
+      question: "What is the BCT/RiskPortfolio limit status?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Limits are breached", nextNodeId: "node_12" },
+        option2: { text: "Limits are within range", nextNodeId: "node_13" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_9',
-      data: { label: 'Check ADS (Rule to No Pricing/Currency Blacklisted) completed. Review ADS rules configuration and verify if pricing or currency restrictions apply. Contact Compliance team if blacklisted items are found.' },
-      position: { x: 600, y: 250 },
+    "node_9": {
+      id: "node_9",
+      question: "What ADS rule issues do you observe? (Select all that apply)",
+      selectionMode: "multiple",
+      options: {
+        option1: { text: "Pricing/Currency Blacklisted", nextNodeId: "node_14" },
+        option2: { text: "MTF Enablement Issue", nextNodeId: "node_15" },
+        option3: { text: "Settlement Date Conflict", nextNodeId: "node_16" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_10',
-      data: { label: 'Check MTF Enablement completed. Verify MTF (Multilateral Trading Facility) configuration settings. Contact Technology team if MTF enablement issues are detected.' },
-      position: { x: 600, y: 375 },
+    "node_10": {
+      id: "node_10",
+      question: "Do you have sufficient trade information?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Yes, proceed with investigation", nextNodeId: "node_16" },
+        option2: { text: "No, need more details", nextNodeId: "node_17" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
     },
-    {
-      id: 'node_11',
-      data: { label: 'Flow configurations review completed. Even with EMSN informed, if provider is not part of the business events or trade, these configurations have been reviewed (Limits, ADS Blacklist and MTF).' },
-      position: { x: 800, y: 250 },
+    "node_11": {
+      id: "node_11",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Escalate to TCAS (Trade Capture and Settlement) team. Provide all available trade details and context for further investigation."
     },
-    {
-      id: 'node_12',
-      data: { label: 'Additional trade information requested. Gather Trade ID, Counterparty details, Settlement Date, Currency information, and any relevant documentation before proceeding.' },
-      position: { x: 800, y: 375 },
+    "node_12": {
+      id: "node_12",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "BCT/RiskPortfolio limits have been breached. Contact Risk Management team to review limit settings and authorize trade if appropriate."
     },
-  ],
-  edges: [
-    { id: 'e1-2', source: 'node_1', target: 'node_2' },
-    { id: 'e1-3', source: 'node_1', target: 'node_3' },
-    { id: 'e2-4', source: 'node_2', target: 'node_4' },
-    { id: 'e2-5', source: 'node_2', target: 'node_5' },
-    { id: 'e3-6', source: 'node_3', target: 'node_6' },
-    { id: 'e3-7', source: 'node_3', target: 'node_7' },
-    { id: 'e3-12', source: 'node_3', target: 'node_12' },
-    { id: 'e5-8', source: 'node_5', target: 'node_8' },
-    { id: 'e5-9', source: 'node_5', target: 'node_9' },
-    { id: 'e5-10', source: 'node_5', target: 'node_10' },
-    { id: 'e5-11', source: 'node_5', target: 'node_11' },
-  ],
+    "node_13": {
+      id: "node_13",
+      question: "Are there any other risk factors to consider?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Yes, additional checks needed", nextNodeId: "node_18" },
+        option2: { text: "No, proceed with trade", nextNodeId: "node_19" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
+    },
+    "node_14": {
+      id: "node_14",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Pricing/Currency is blacklisted in ADS rules. Review the blacklist settings and contact Compliance team to verify if the restriction should be lifted."
+    },
+    "node_15": {
+      id: "node_15",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "MTF (Multilateral Trading Facility) enablement issue detected. Check MTF configuration settings and contact Technology team for system updates."
+    },
+    "node_16": {
+      id: "node_16",
+      question: "What type of investigation is required?",
+      selectionMode: "single",
+      options: {
+        option1: { text: "Standard trade validation", nextNodeId: "node_20" },
+        option2: { text: "Complex scenario analysis", nextNodeId: "node_21" }
+      },
+      isEndpoint: false,
+      endpointMessage: null
+    },
+    "node_17": {
+      id: "node_17",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Insufficient trade details provided. Request additional information including: Trade ID, Counterparty, Settlement Date, and Currency details before proceeding."
+    },
+    "node_18": {
+      id: "node_18",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Additional risk checks required. Perform enhanced due diligence including credit risk assessment, market risk analysis, and regulatory compliance verification."
+    },
+    "node_19": {
+      id: "node_19",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "All risk checks passed successfully. Trade can proceed through normal settlement process. Monitor for any post-trade issues."
+    },
+    "node_20": {
+      id: "node_20",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Perform standard trade validation: Verify trade details, check counterparty limits, validate pricing, and confirm settlement instructions are correct."
+    },
+    "node_21": {
+      id: "node_21",
+      question: "",
+      selectionMode: "single",
+      options: { option1: { text: "", nextNodeId: null }, option2: { text: "", nextNodeId: null } },
+      isEndpoint: true,
+      endpointMessage: "Complex scenario analysis required. Go to Trade Investigation Part 2: Scenario Analysis. Document all findings and escalate to senior trading desk if needed."
+    }
+  }
 };
 
 export function FlowchartEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user, signOut } = useAuth();
   const { toast } = useToast();
